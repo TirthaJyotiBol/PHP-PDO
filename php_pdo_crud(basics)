@@ -1,0 +1,115 @@
+<!-- USING MYSQLI WE CAN ONLY CONNECT THOUUGH "mysql" DATABASE, 
+BUT USING PDO WE CAN CONNECT THROUGH 12 DIFFERENT DATABASES -->
+
+<?php
+$server ="localhost";
+$username="root";
+$password="";
+$database="phpodo";
+// A new object is made down there
+$con = new PDO("mysql:host=$server;dbname=$database",$username,$password);   
+if($con){
+    echo"done";
+}
+if(!$con){
+    echo"not done";
+}
+
+
+
+// INSERT QUERY
+
+$insert = "INSERT INTO `pdotab`( `name`, `age`, `class`, `gender`)
+ VALUES ('tirtha','21','3','male')";
+$con->query($insert);   //instead of mysqli_query , we can write ->query(#arguement);
+
+
+
+// SELECT QUERY
+
+$select ="SELECT * from `pdotab` where id=1";  //Selected
+$stmt = $con->query($select);                 // execute the select query 
+$result = $stmt->fetch(PDO::FETCH_ASSOC);      // converts the data into an array and pdo::fetch_assoc makes it look good
+
+//This is basicaliy a kind  of creating your own api;;
+
+// output :
+// Array ( [id] => 1 [0] => 1 [name] => tirtha [1] => tirtha [age] => 21 [2] => 21 [class] => 3 [3] => 3 [gender] => male [4] => male )
+
+
+$result = $stmt->fetch(PDO::FETCH_NUM);       // it shows the data with numbers as key
+$result = $stmt->fetch(PDO::FETCH_OBJ);       //  it shows the data on the form of KEY value pair { i.e. object}
+
+echo"<pre>";
+print_r($result);                              // Prints the array
+
+// // HOW to get particular value from the API created in the form of objects?
+
+echo"my name is : ".$result->name; 
+echo"<br> my age is : ".$result->age;
+echo"<br> my class is : ".$result->class;
+echo" <br> my sex is : ".$result->gender;
+
+
+
+// HOW to save your data form Prepared statement : SQL injection :-
+
+$idnum=1;
+$select ="SELECT * from `pdotab` where id=:$idnum"; 
+$statement = $con->prepare($select);
+$statement->bindparam(":$idnum",$idnum);     //bind basically binds the data to make it strong
+$statement->execute();
+$result=$statement->fetch();
+echo"<pre>";
+print_r($result);  
+echo"my name is : ".$result['name'];   
+
+
+
+// UPDATE 
+
+$id = 48;
+$name = 'vinodThapa';
+
+$updatequery = " update studentstable set name=:name where id=:id ";
+$stmt = $dbcon->prepare($updatequery);
+$stmt->execute(['name'=>$name, 'id'=>$id]);
+
+
+// DELETE
+
+$id = 48;
+
+$deletequery = " delete from studentstable where id=:id ";
+$stmt = $dbcon->prepare($deletequery);
+$stmt->execute(['id'=>$id]);
+
+
+
+
+
+?>
+
+
+                                            <!-- TRY CATCH -->
+<!-- using PDO we also have an advantage to use the try catch method for any error findings :
+the method is shown below - -->
+<?php
+
+try{
+$server="localhost";
+$username="root";
+$password="";
+$database="phpodo";
+$con=new PDO(" mysql:host=$server;dbname=$database",$username,$password); //   //here we gave a space before mysql ; so it would through an exception
+}
+catch(Exception $e){
+    echo "Error : ".$e->getMessage();
+}
+
+
+Output would be :
+
+Error : cannot find driver
+ 
+?>
